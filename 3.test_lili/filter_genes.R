@@ -23,27 +23,25 @@ library(fgsea)
 library(optparse)
 option_list <- list(
     make_option(c("-i", "--input_csv"), type = "character", help = "Input CSV file"),
-    make_option(c("-l", "--log2fc"), type = "character", help = "Log2 fold change column name"),
-    make_option(c("-p", "--p_val_adj"), type = "character", help = "Adjusted p-value column name"),
+    make_option(c("-l", "--key_log2fc"), type = "character", help = "Log2 fold change column name"),
+    make_option(c("-p", "--key_p_val_adj"), type = "character", help = "Adjusted p-value column name"),
     make_option(c("-o", "--output_csv"), type = "character", help = "Output CSV file")
 )
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
-
+# parameters
 input_csv <- opt$input_csv
-key_log2fc <- opt$log2fc
-key_p_val_adj <- opt$p_val_adj
+key_log2fc <- opt$key_log2fc
+key_p_val_adj <- opt$key_p_val_adj
 output_csv <- opt$output_csv
 
 ## 读取数据
 res <- read.csv(input_csv, row.names = 1)
 head(res)
 ## 基于筛选指标筛选差异基因
-log2fc <- key_log2fc
-p_val_adj <- key_p_val_adj
 # Convert column names to symbols for use in dplyr
-log2fc <- sym(log2fc)
-p_val_adj <- sym(p_val_adj)
+log2fc <- sym(key_log2fc)
+p_val_adj <- sym(key_p_val_adj)
 # Filter genes based on log2fc and p_val_adj
 deg <- rownames_to_column(res, var = "Gene") %>%
     filter(abs(!!log2fc) > 1 & !!p_val_adj < 0.05) %>%
@@ -51,7 +49,7 @@ deg <- rownames_to_column(res, var = "Gene") %>%
     { 
         # 判断行数并排序截断
         if(nrow(.) > 3000) {
-            arrange(., desc(abs(!!log2fc_sym))) %>% 
+            arrange(., desc(abs(!!log2fc))) %>% 
             slice_head(n = 3000)
         } else {
             .

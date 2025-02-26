@@ -1,6 +1,6 @@
 library(optparse)
 option_list <- list(
-    make_option(c("-i", "--input_csv"), type = "character", help = "Input CSV file"),
+    make_option(c("-i", "--input_csv"), type = "character", help = "Input filter gene CSV file"),
     make_option(c("-l", "--key_log2fc"), type = "character", help = "Log2 fold change column name"),
     make_option(c("-p", "--key_p_val_adj"), type = "character", help = "Adjusted p-value column name"),
     make_option(c("-o", "--output_csv"), type = "character", help = "Output CSV file")
@@ -12,6 +12,9 @@ input_csv <- opt$input_csv
 key_log2fc <- opt$key_log2fc
 key_p_val_adj <- opt$key_p_val_adj
 output_csv <- opt$output_csv
+# Convert column names to symbols for use in dplyr
+log2fc <- sym(key_log2fc)
+p_val_adj <- sym(key_p_val_adj)
 # read data
 res <- read.csv(input_csv, row.names = 1)
 res <- rownames_to_column(res, var = "Gene") %>% filter(!is.na(Gene) & !duplicated(Gene))
